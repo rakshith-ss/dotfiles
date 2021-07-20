@@ -1,2 +1,2 @@
-# vimrc
-### .vimrc setup
+# Dotfiles
+### Config for dotfiles
