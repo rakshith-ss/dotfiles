@@ -9,14 +9,12 @@ set smartcase
 set expandtab                   "convert tab character to spaces
 set noswapfile                  "does not create .swp files
 set incsearch
-set bg=dark
-set colorcolumn=100
+"set bg=dark
 set termguicolors
-if &term == "screen"
-  set t_Co=256
-endif
-
-
+set colorcolumn=100
+set t_Co=256
+set ignorecase
+set cursorline
 "Plugin Manager- Vundle
 
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -37,7 +35,11 @@ Plugin 'sainnhe/sonokai'
 Plugin 'severij/vadelma'
 Plugin 'sainnhe/gruvbox-material'
 Plugin 'srcery-colors/srcery-vim'
-
+Plugin 'ghifarit53/tokyonight-vim'
+Plugin 'YorickPeterse/vim-paper'
+Plugin 'tomasiser/vim-code-dark'
+Plugin 'NLKNguyen/papercolor-theme'
+Plugin 'drewtempelmeyer/palenight.vim'
 " Snippets
 Plugin 'SirVer/ultisnips'
 
@@ -60,13 +62,30 @@ Plugin 'mattn/emmet-vim'
 "indentline
 Plugin 'Yggdroot/indentLine'
 
+"ALE 
+"Plugin 'dense-analysis/ale'
+
+"Vim Prettier 
+Plugin 'prettier/vim-prettier'
+
+"vim fugitive for git
+Plugin 'tpope/vim-fugitive'
+
 call vundle#end()
 
 nnoremap <C-t> :NERDTreeToggle<CR>
 
 map <tab> :bnext<CR>
-colorscheme sonokai
+colorscheme palenight
 
+
+
+" termiguicolors
+if exists('+termguicolors')
+	let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+	let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+	set termguicolors
+endif
 " Smarter tabline 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
@@ -108,3 +127,7 @@ let g:airline_symbols.linenr = ''
 let g:UltiSnipsExpandTrigger="<C-j>"
 let g:UltiSnipsJumpForwardTrigger="<C-f>"
 let g:UltiSnipsJumpBackwardTrigger="<C-b>"
+
+" Prettier Stylelint
+au FileType css,scss let b:prettier_exec_cmd = "prettier-stylelint"
+
