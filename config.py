@@ -101,7 +101,7 @@ keys = [
     Key(
         [],
         "Print",
-        lazy.spawn("flameshot full -c ")
+        lazy.spawn("flameshot full -c -p /home/ssrakshith/Pictures/screenshots")
         ),
     Key(
         ["shift"],
