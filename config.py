@@ -1,31 +1,4 @@
-# Copyright (c) 2010 Aldo Cortesi
-# Copyright (c) 2010, 2014 dequis
-# Copyright (c) 2012 Randall Ma
-# Copyright (c) 2012-2014 Tycho Andersen
-# Copyright (c) 2012 Craig Barnes
-# Copyright (c) 2013 horsik
-# Copyright (c) 2013 Tao Sauvage
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from typing import List  # noqa: F401
-
 from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
@@ -79,36 +52,36 @@ keys = [
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
 
     Key([mod, "shift"], "r", lazy.restart(), desc="Restart Qtile"),
-    Key([mod, "shift"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+    Key([mod, "shift"], "e", lazy.shutdown(), desc="Shutdown Qtile"),
     Key([mod], "r", lazy.spawncmd(),
         desc="Spawn a command using a prompt widget"),
     Key(
         [],
         "XF86MonBrightnessDown",
-        lazy.spawn("xbacklight -10")
+        lazy.spawn("xbacklight -5")
         ),
     Key(
         [],
         "XF86MonBrightnessUp",
-        lazy.spawn("xbacklight +10")
+        lazy.spawn("xbacklight +5")
         ),
     Key(
         [],
         "XF86AudioRaiseVolume",
-        lazy.spawn("pactl -- set-sink-volume 0 +10%")
+        lazy.spawn("amixer set Master 5%+")
         ),
     Key(
         [],
         "XF86AudioLowerVolume",
-        lazy.spawn("pactl -- set-sink-volume 0 -10%")
+        lazy.spawn("amixer set Master 5%-")
         ),
     Key(
         [],
         "XF86AudioMute",
-        lazy.spawn("pactl set-sink-mute 0 toggle")
+        lazy.spawn("amixer set Master toggle")
         ),
     Key(
         [],
@@ -128,51 +101,124 @@ keys = [
     Key(
         [],
         "Print",
-        lazy.spawn("flameshot full -p ~/Pictures/screenshots/")
+        lazy.spawn("flameshot full -c ")
         ),
     Key(
         ["shift"],
         "Print",
         lazy.spawn("flameshot gui")
+        ),
+    Key(
+        [mod],
+        "f",
+        lazy.spawn("firefox")
+        ),
+    Key(
+        [mod],
+        "e",
+        lazy.spawn("thunar")
+        ),
+    Key(
+        [mod],
+        "g",
+        lazy.spawn("chromium")
+        ),
+    Key(
+        [mod],
+        "p",
+        lazy.spawn("pavucontrol")
+        ),
+    Key(
+        [mod],
+        "d",
+        lazy.spawn("rofi -combi-modi window,drun -theme android_notification -font \"iosevkasemibold 12\" -show combi")
         )
 ]
 
-groups = [Group(i) for i in "123456"]
+groups = [
+        Group(
+            "term ",
+            layout='columns',
+            matches=[
+                Match(wm_class="Alacritty")
+                ]
+            ),
+        Group(
+            "web ",
+            matches=[
+                    Match(wm_class="firefox"),
+                    Match(wm_class="qutebrowser"),
+                    Match(wm_class="brave-browser"),
+                    Match(wm_class="chromium"),
+                    Match(wm_class="Pale moon")
+                    ],
+            layouts=[layout.Columns()]
+            ),
+        Group(
+            "music ",
+            layouts=[
+                    layout.TreeTab(
+                                    font="sourcecodepro",
+                                    panel_width=240,
+                                    active_bg="#212F3D"
+                                )
+                    ],
+            matches=[
+                Match(wm_class="nuclear")
+                ]
+            ),
+        Group(
+            "files ",
+            layout="columns",
+            matches=[
+                Match(wm_class="Thunar")
+                ]
+            ),
+        Group(
+            "docs ",
+            layouts=[
+                    layout.TreeTab(
+                                    font="sourcecodepro",
+                                    panel_width=240,
+                                    active_bg="#212F3D"
+                                )
+                    ],
+            matches=[
+                Match(wm_class="libreoffice-writer")
+                ]
+            ),
+        Group(
+            "videos ",
+            layout="floating",
+            matches =[
+                    Match(wm_class="mpv")
+                    ]
+            ),
+        Group(
+            "extras ",
+            layout="columns"
+            )
+        ]
 
-for i in groups:
+for i, group in enumerate(groups):
     keys.extend([
-        # mod1 + letter of group = switch to group
-        Key([mod], i.name, lazy.group[i.name].toscreen(),
-            desc="Switch to group {}".format(i.name)),
+            Key(
+                [mod],
+                str(i+1),
+                lazy.group[group.name].toscreen()
+                ),
+            Key(
+                [mod, "shift"],
+                str(i+1),
+                lazy.window.togroup(group.name, switch_group=True)
+            )
+            ])
 
-        # mod1 + shift + letter of group = switch to & move focused window to group
-        Key([mod, "shift"], i.name, lazy.window.togroup(i.name, switch_group=True),
-            desc="Switch to & move focused window to group {}".format(i.name)),
-        # Or, use below if you prefer not to switch to that group.
-        # # mod1 + shift + letter of group = move focused window to group
-        # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-        #     desc="move focused window to group {}".format(i.name)),
-    ])
-
-layouts = [
-    layout.Columns(border_focus_stack='#d75f5f', margin=6),
-    #layout.Max(),
-    # Try more layouts by unleashing below layouts.
-    # layout.Stack(num_stacks=2),
-    # layout.Bsp(),
-    #layout.MonadTall(single_margin=42),
-    #layout.MonadWide(margin=6),
-    # layout.RatioTile(),
-    # layout.Tile(),
-    #layout.TreeTab(),
-    # layout.VerticalTile(),
-    # layout.Zoomy(),
-]
 
 widget_defaults = dict(
-    font='isoveka',
-    fontsize=13,
-    padding=3,
+    font='iosevkaheavy',
+    fontsize=14,
+    padding=3
 )
 extension_defaults = widget_defaults.copy()
 
@@ -193,13 +239,15 @@ screens = [
                     name_transform=lambda name: name.upper(),
                 ),
                 widget.Systray(),
-                widget.Battery(battery=1, charge_char="^", background=backgroundEven),
-                widget.Clock(format='%d-%b-%Y %H:%M', background=backgroundOdd),
-                widget.Memory(background=backgroundEven)
+                widget.Notify(action=True, font="isoveka"),
+                widget.Clock(format='%d-%b-%Y %H:%M', background=backgroundEven),
+                widget.Memory(background=backgroundOdd)
             ],
             24,
+            background="#8ACB55"
+
         ),
-    ),
+    )
 ]
 
 # Drag floating layouts.
@@ -223,9 +271,9 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='makebranch'),  # gitk
     Match(wm_class='maketag'),  # gitk
     Match(wm_class='ssh-askpass'),  # ssh-askpass
-   # Match(wm_class='Alacritty'),
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
+    Match(title='kitty')
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
