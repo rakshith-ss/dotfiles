@@ -2,7 +2,6 @@ from typing import List  # noqa: F401
 from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
 
 # adding scripts that launch while qtile begins
 from libqtile import hook
@@ -10,14 +9,20 @@ import os
 import subprocess
 
 mod = "mod4"
-terminal = guess_terminal()
-
+mod1 = "mod1"
+HOME = os.environ.get('HOME')
 keys = [
     # Switch between windows
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
+
+    Key([mod], "Left", lazy.layout.left(), desc="Move focus to left"),
+    Key([mod], "Right", lazy.layout.right(), desc="Move focus to right"),
+    Key([mod], "Down", lazy.layout.down(), desc="Move focus down"),
+    Key([mod], "Up", lazy.layout.up(), desc="Move focus up"),
+
     Key([mod], "space", lazy.layout.next(),
         desc="Move window focus to other window"),
 
@@ -31,24 +36,41 @@ keys = [
         desc="Move window down"),
     Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
 
+    Key([mod, "shift"], "Left", lazy.layout.shuffle_left(),
+        desc="Move window to the left"),
+    Key([mod, "shift"], "Right", lazy.layout.shuffle_right(),
+        desc="Move window to the right"),
+    Key([mod, "shift"], "Down", lazy.layout.shuffle_down(),
+        desc="Move window down"),
+    Key([mod, "shift"], "Up", lazy.layout.shuffle_up()),
+
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(),
+    Key([mod1], "h", lazy.layout.grow_left(),
         desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(),
+    Key([mod1], "l", lazy.layout.grow_right(),
         desc="Grow window to the right"),
-    Key([mod, "control"], "j", lazy.layout.grow_down(),
+    Key([mod1], "j", lazy.layout.grow_down(),
         desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    Key([mod1], "k", lazy.layout.grow_up(), desc="Grow window up"),
 
+    Key([mod1], "Left", lazy.layout.grow_left(),
+        desc="Grow window to the left"),
+    Key([mod1], "Right", lazy.layout.grow_right(),
+        desc="Grow window to the right"),
+    Key([mod1], "Down", lazy.layout.grow_down(),
+        desc="Grow window down"),
+    Key([mod1], "Up", lazy.layout.grow_up(), desc="Grow window up"),
+
+
+    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
     # multiple stack panes
-    Key([mod, "shift"], "Return", lazy.layout.toggle_split(),
+    Key([mod, "shift"], "f", lazy.layout.Floating(),
         desc="Toggle between split and unsplit sides of stack"),
-    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    Key([mod], "Return", lazy.spawn('kitty'), desc="Launch terminal"),
 
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
@@ -59,176 +81,202 @@ keys = [
     Key([mod], "r", lazy.spawncmd(),
         desc="Spawn a command using a prompt widget"),
     Key(
+        [mod],
+        "f",
+        lazy.window.toggle_fullscreen()
+    ),
+    Key(
         [],
         "XF86MonBrightnessDown",
-        lazy.spawn("xbacklight -5")
-        ),
+        lazy.spawn("brightnessctl set 2%-")
+    ),
     Key(
         [],
         "XF86MonBrightnessUp",
-        lazy.spawn("xbacklight +5")
-        ),
+        lazy.spawn("brightnessctl set 2%+")
+    ),
     Key(
         [],
         "XF86AudioRaiseVolume",
-        lazy.spawn("amixer set Master 5%+")
-        ),
+        lazy.spawn("amixer set Master 2%+")
+    ),
     Key(
         [],
         "XF86AudioLowerVolume",
-        lazy.spawn("amixer set Master 5%-")
-        ),
+        lazy.spawn("amixer set Master 2%-")
+    ),
     Key(
         [],
         "XF86AudioMute",
         lazy.spawn("amixer set Master toggle")
+    ),
+    # A very dirty hack but works for now anyway :'c
+    Key(
+        [mod],
+        "x",
+        lazy.spawn("pactl set-sink-volume @DEFAULT_SINK@ 125%")
         ),
     Key(
         [],
         "XF86AudioPrev",
         lazy.spawn("playerctl previous")
-        ),
+    ),
     Key(
         [],
         "XF86AudioPlay",
         lazy.spawn("playerctl play-pause")
-        ),
+    ),
     Key(
         [],
         "XF86AudioNext",
         lazy.spawn("playerctl next")
-        ),
+    ),
     Key(
         [],
         "Print",
-        lazy.spawn("flameshot full -c -p /home/ssrakshith/Pictures/screenshots")
-        ),
+        lazy.spawn(f"flameshot full -c -p {HOME}/Pictures/screenshots/")
+    ),
     Key(
         ["shift"],
         "Print",
         lazy.spawn("flameshot gui")
-        ),
-    Key(
-        [mod],
-        "f",
-        lazy.spawn("firefox")
-        ),
+    ),
     Key(
         [mod],
         "e",
-        lazy.spawn("thunar")
-        ),
+        lazy.spawn("pcmanfm")
+    ),
     Key(
         [mod],
         "g",
         lazy.spawn("chromium")
-        ),
+    ),
     Key(
         [mod],
         "p",
         lazy.spawn("pavucontrol")
-        ),
+    ),
     Key(
         [mod],
         "d",
-        lazy.spawn("rofi -combi-modi window,drun -theme android_notification -font \"iosevkasemibold 12\" -show combi")
-        )
+        lazy.spawn("rofi -combi-modi window,drun -theme android_notification -font \"iosevkasemibold 12\" -show combi -icon-theme \"Paper\" -show-icons")
+    ),
+    Key(
+        [mod, "shift"],
+        "x",
+        lazy.spawn("i3lock-fancy && systemctl suspend")
+    ),
+    Key(
+        [mod],
+        "q",
+        lazy.to_screen(0)
+    ),
+    Key(
+        [mod],
+        "a",
+        lazy.to_screen(1)
+    )
 ]
-
+column_layout = layout.Columns(border_width=3, margin=8)
 groups = [
-        Group(
-            "term ",
-            layout='columns',
-            matches=[
-                Match(wm_class="Alacritty")
-                ]
-            ),
-        Group(
-            "web ",
-            matches=[
-                    Match(wm_class="firefox"),
-                    Match(wm_class="qutebrowser"),
-                    Match(wm_class="brave-browser"),
-                    Match(wm_class="chromium"),
-                    Match(wm_class="Pale moon")
-                    ],
-            layouts=[layout.Columns()]
-            ),
-        Group(
-            "music ",
-            layouts=[
-                    layout.TreeTab(
-                                    font="sourcecodepro",
-                                    panel_width=240,
-                                    active_bg="#212F3D"
-                                )
-                    ],
-            matches=[
-                Match(wm_class="nuclear")
-                ]
-            ),
-        Group(
-            "files ",
-            layout="columns",
-            matches=[
-                Match(wm_class="Thunar")
-                ]
-            ),
-        Group(
-            "docs ",
-            layouts=[
-                    layout.TreeTab(
-                                    font="sourcecodepro",
-                                    panel_width=240,
-                                    active_bg="#212F3D"
-                                )
-                    ],
-            matches=[
-                Match(wm_class="libreoffice-writer")
-                ]
-            ),
-        Group(
-            "videos ",
-            layout="floating",
-            matches =[
-                    Match(wm_class="mpv")
-                    ]
-            ),
-        Group(
-            "extras ",
-            layout="columns"
+    Group(
+        "term",
+        layouts=[column_layout],
+        matches=[
+            Match(wm_class="Alacritty")
+        ]
+    ),
+    Group(
+        "web",
+        matches=[
+            Match(wm_class="firefox"),
+            Match(wm_class="qutebrowser"),
+            Match(wm_class="brave-browser"),
+            Match(wm_class="chromium"),
+            Match(wm_class="Pale moon")
+        ],
+        layouts=[column_layout]
+    ),
+    Group(
+        "chat",
+        layouts=[column_layout],
+        matches=[
+            Match(wm_class="zoom")
+        ]
+    ),
+    Group(
+        "files",
+        layouts=[column_layout],
+        matches=[
+            Match(wm_class="Pcmanfm")
+        ]
+    ),
+    Group(
+        "docs",
+        layouts=[
+            layout.TreeTab(
+                font="sourcecodepro",
+                panel_width=240,
+                active_bg="#212F3D"
             )
         ]
+    ),
+    Group(
+        "music",
+        layouts=[column_layout],
+        matches=[
+            Match(wm_class="nuclear"),
+            Match(wm_class="rhythmbox")
+        ]
+    ),
+
+    Group(
+        "videos",
+        layouts=[column_layout],
+        matches=[
+            Match(wm_class="mpv")
+        ]
+    ),
+    Group(
+        "edits",
+        layouts=[layout.Columns(border_width=0)],
+        matches=[
+            Match(wm_class="Gimp-2.10"),
+            Match(wm_class="obs"),
+            Match(wm_class="Ghb")
+        ]
+    )
+]
 
 for i, group in enumerate(groups):
     keys.extend([
-            Key(
+        Key(
                 [mod],
                 str(i+1),
                 lazy.group[group.name].toscreen()
                 ),
-            Key(
-                [mod, "shift"],
-                str(i+1),
-                lazy.window.togroup(group.name, switch_group=True)
-            )
-            ])
+        Key(
+            [mod, "shift"],
+            str(i+1),
+            lazy.window.togroup(group.name, switch_group=True)
+        )
+    ])
 
 
 widget_defaults = dict(
     font='iosevkaheavy',
-    fontsize=14,
+    fontsize=13,
     padding=3
 )
 extension_defaults = widget_defaults.copy()
 
-backgroundEven = "#CD5C5C"
-backgroundOdd = "#4c7c98"
+backgroundEven = "#1A1D39"
+backgroundOdd = "#635088"
 screens = [
     Screen(
         top=bar.Bar(
             [
-               #widget.CurrentLayout(),
+                # widget.CurrentLayout(),
                 widget.GroupBox(),
                 widget.Prompt(),
                 widget.WindowName(),
@@ -238,14 +286,40 @@ screens = [
                     },
                     name_transform=lambda name: name.upper(),
                 ),
+                widget.Cmus(fmt="{}", font="iosevka", max_chars=25),
                 widget.Systray(),
                 widget.Notify(action=True, font="isoveka"),
-                widget.Clock(format='%d-%b-%Y %H:%M', background=backgroundEven),
+                widget.Volume(fmt='vol: {}', background=backgroundOdd),
+                widget.Clock(format='%d-%b-%Y %H:%M',
+                             background=backgroundEven),
                 widget.Memory(background=backgroundOdd)
             ],
             24,
-            background="#8ACB55"
-
+            background="#2E2E2E",
+        )
+    ),
+    Screen(
+        top=bar.Bar(
+            [
+                # widget.CurrentLayout(),
+                widget.GroupBox(),
+                widget.Prompt(),
+                widget.WindowName(),
+                widget.Chord(
+                    chords_colors={
+                        'launch': ("#ff0000", "#BDBDBD"),
+                    },
+                    name_transform=lambda name: name.upper(),
+                ),
+                widget.Systray(),
+                widget.Notify(action=True, font="isoveka"),
+                widget.Volume(fmt='vol: {}', background=backgroundOdd),
+                widget.Clock(format='%d-%b-%Y %H:%M',
+                             background=backgroundEven),
+                widget.Memory(background=backgroundOdd)
+            ],
+            20,
+            background="#2E2E2E"
         ),
     )
 ]
@@ -273,7 +347,6 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='ssh-askpass'),  # ssh-askpass
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
-    Match(title='kitty')
 ])
 auto_fullscreen = True
 focus_on_window_activation = "smart"
@@ -292,6 +365,7 @@ auto_minimize = True
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"
+
 
 @hook.subscribe.startup_once
 def autostart():

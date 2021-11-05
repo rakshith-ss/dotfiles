@@ -6,106 +6,86 @@ set ignorecase
 set relativenumber
 set cursorline
 set shiftwidth=4
+set tabstop=4 softtabstop=4
 set nowrap
 set noswapfile
-set t_Co=256
+set completeopt-=preview
+set completeopt+=noinsert
+set colorcolumn=100
+set wildmenu
 set termguicolors
-filetype plugin on
-autocmd Filetype javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+let mapleader="-"
+
+source $HOME/.config/nvim/plugs.vim
+colorscheme tokyonight
+
+" Remaps
+nnoremap tt :NERDTreeToggle<CR>
+nnoremap <tab> :bnext<CR>
+nnoremap vv :vsp<CR>
+nnoremap vh :sp<CR>
+nnoremap vb :vertical resize +10<CR>
+nnoremap vc :vertical resize -10<CR>
+nnoremap hj :resize +10<CR>
+nnoremap hg :resize -10<CR>
+nnoremap <space>h <C-W>h
+nnoremap <space>j <C-W>j
+nnoremap <space>k <C-W>k
+nnoremap <space>l <C-W>l
+nnoremap <space><Left> <C-W>h
+nnoremap <space><Down> <C-W>j
+nnoremap <space><Up> <C-W>k
+nnoremap <space><Right> <C-W>l
+inoremap ii <Esc>
+nnoremap <space><space> i<space><Esc>
+nnoremap <C-q> :copen<CR>
+nnoremap <C-j> :cNext<CR>
+nnoremap <C-k> :cprevious<CR>
+nnoremap <C-c> :cclose<CR>
+nnoremap <leader>l :lopen<CR>
+nnoremap <leader>j :lNext<CR>
+nnoremap <leader>k :lprevious<CR>
+nnoremap <leader>c :lclose<CR>
+inoremap <c-d> <Esc>ddi
+nnoremap ff <cmd>Telescope find_files<cr>
+nnoremap fg <cmd>Telescope live_grep<cr>
+nnoremap fb <cmd>Telescope buffers<cr>
+" End of remaps
+
+let g:airline#extensions#tabline#enabled = 1
+let g:mucomplete#enable_auto_at_startup=1
+let g:user_emmet_leader_key=',' " use , for the emmet plugin
+let g:mkdp_browser = 'firefox'
+
+
+" Python Language Server
+lua << EOF
+	require'lspconfig'.pylsp.setup{}
+	require('telescope').load_extension('fzf')
+EOF
 
 " Removes all trailing whitespace
 autocmd BufWritePre * :%s/\s\+$//e
+autocmd FileType python set omnifunc=v:lua.vim.lsp.omnifunc
 
+" LSP Remaps
+nnoremap <silent> gD :lua vim.lsp.buf.declaration()<CR>
+nnoremap <silent> gd :lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> gr :lua vim.lsp.buf.references()<CR>
+nnoremap <silent> sd :lua vim.lsp.diagnostic.set_loclist()<CR>
+nnoremap <silent> K  :lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> rn :lua vim.lsp.buf.rename()<CR>
+nnoremap <silent> [d :lua vim.lsp.diagnostic.goto_prev()<CR>
+nnoremap <silent> ]d :lua vim.lsp.diagnostic.goto_next()<CR>
+nnoremap <silent> <space>f :lua vim.lsp.buf.formatting()<CR>
+" End of LSP Remaps
 
-" Vim Plug- Plugin Manager
-call plug#begin()
+" Source this Config file
+nnoremap <leader>sv :source $HOME/.config/nvim/init.vim<CR>
 
-Plug 'lifepillar/vim-mucomplete'
+function! MarkdownFile()
+	set spell
+endfunction
 
-"colorschemes
-Plug 'morhetz/gruvbox'
-Plug 'sonph/onehalf', {'rtp': 'vim/'}
-Plug 'wadackel/vim-dogrun'
-Plug 'ulwlu/elly.vim'
-Plug 'embark-theme/vim'
-Plug 'liuchengxu/space-vim-dark'
-Plug 'ajmwagar/vim-deus'
-Plug 'srcery-colors/srcery-vim'
-Plug 'ackyshake/Spacegray.vim'
-Plug 'sainnhe/sonokai'
-" airline
-Plug 'vim-airline/vim-airline'
-
-" Nerd Tree
-Plug 'preservim/nerdtree'
-
-" vim-fugitive
-Plug 'tpope/vim-fugitive'
-
-" Color Pigments
-"Plug 'gko/vim-coloresque'
-
-Plug 'ap/vim-css-color'
-
-" indent-line
-Plug 'Yggdroot/indentLine'
-
-" emmet plugin for vim
-Plug 'mattn/emmet-vim'
-
-" Telescope
-Plug 'nvim-lua/popup.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
-
-
-" Maybe someother day :'c :'c
-" LSP Plugins
-Plug 'neovim/nvim-lspconfig'
-Plug 'kabouzeid/nvim-lspinstall'
-Plug 'nvim-lua/completion-nvim'
-
-call plug#end()
-
-
-colorscheme gruvbox
-
-" Remaps
-
-nnoremap tt :NERDTreeToggle<CR>
-map <tab> :bnext<CR>
-nnoremap hh <C-w>h
-nnoremap ll <C-w>l
-nnoremap jj <C-w>j
-nnoremap kk <C-w>k
-noremap vv :vsp<CR>
-noremap vh :sp<CR>
-noremap vb :vertical resize +10<CR>
-noremap vc :vertical resize -10<CR>
-noremap hj :resize +10<CR>
-nnoremap hg :resize -10<CR>
-inoremap ii <Esc>
-nnoremap <space><space> i<space><Esc>
-
-" End of Remaps
-
-"" For Fun ascii art
-
-nnoremap fs :.!figlet -f slant<CR>
-nnoremap fw :.!figlet -f future<CR>
-
-lua require'lspconfig'.pylsp.setup{on_attach=require'completion'.on_attach}
-
-set completeopt+=noinsert
-"set complete=b
-set wildmenu
-let g:airline#extensions#tabline#enabled = 1
-let g:user_emmet_leader_key=','
-
-
-" Telescope remaps
-nnoremap ff :Telescope find_files<CR>
-nnoremap fg :Telescope live_grep<CR>
-
-" startup
-let g:mucomplete#enable_auto_at_startup=1
+autocmd FileType markdown set spell
+autocmd FileType html,css,xml EmmetInstall
